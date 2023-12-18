@@ -1,0 +1,349 @@
+body {
+    margin: 0;
+    overflow: hidden;
+}
+@media all and (max-width: 1366px) {
+    #results {
+        position: fixed;
+        margin-top: 110px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    canvas {
+        height: 500px;
+    }
+
+}
+#container {
+    background-image: url("images/rainbow.jpg");
+    position: relative;
+    padding-top: 10px;
+}
+
+#container h2 {
+    font-size: 100px;
+    text-align: center;
+    color: red;
+    text-shadow: yellow 0 0 2px;
+    font-style: italic;
+    margin: 50px 0 30px 0;
+}
+
+#container h5 {
+    font-size: 30px;
+    text-align: center;
+    color: yellow;
+    text-shadow: black 0 0 2px;
+    font-style: italic;
+    margin: 10px 0 10px 0;
+}
+
+#menu {
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+}
+ul {
+    list-style-type: none;
+}
+li {
+    padding-top: 10px;
+}
+li:hover {
+    cursor: pointer;
+}
+.menu {
+    width: 500px;
+    height: 40px;
+    background-color: coral;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    border-radius: 30px;
+    vertical-align: middle;
+}
+.back {
+    width: 300px;
+    margin-left: 100px;
+    background-color: coral;
+    font-size: 20px;
+    color: black;
+}
+/*о приложении:*/
+#rules {
+    width: 900px;
+    height: 500px;
+    margin: 50px auto;
+    background-color: coral;
+    border-radius: 50px;
+    border: solid white 2px;
+    padding: 0 10px;
+}
+#rules h5 {
+    font-size: 30px;
+    text-align: center;
+    color: yellow;
+    text-shadow: black 0 0 5px;
+    font-style: italic;
+    margin: 20px 10px 10px 10px;
+}
+#rules p, #rules ul, #rules li {
+    font-size: 20px;
+    text-align: justify;
+    color: black;
+    text-shadow: white 0 0 2px;
+    text-indent: 20px;
+}
+/*обучение:*/
+#carousel {
+   display: inline-block;
+}
+img {
+    margin: 40px 30px;
+    width: 128px;
+    height: 128px;
+}
+/* Основной блок карусели*/
+.owl-wrapper-outer {
+    height: 500px;
+    border: none;
+    border-radius: 5px;
+    overflow: hidden;
+}
+/* 1 квадратик карусели */
+.carousel-element {
+    height: 300px;
+    padding: 50px;
+    font-size: 70px;
+    text-shadow: #fff -1px -1px 0, #333 1px 1px 0;
+    font-style: oblique;
+    text-align: center;
+    border-right: 1px solid #777;
+}
+/* Блок с точками */
+.owl-pagination {
+    text-align: center; /* Выравниваем точки по-середине */
+}
+/* 1 Точка */
+.owl-page {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #777;
+    display: inline-block;
+    background: white;
+    margin: 10px;
+    border-radius: 5px;
+}
+/* Активная точка */
+.owl-page.active {
+    background: linear-gradient(crimson, gold, yellowgreen, teal, crimson);
+}
+.red {
+    color: red;
+}
+.orange {
+    color: orange;
+}
+.yellow {
+    color: yellow;
+}
+.green {
+    color: green;
+}
+.lightBlue {
+    color: deepskyblue;
+}
+.blue {
+    color: blue;
+}
+.violet {
+    color: purple;
+}
+.inBegin {
+    width: 150px;
+    position: absolute;
+    top: 90px;
+    left: 15px;
+    float: right;
+    background-color: yellow;
+    font-size: 20px;
+    color: black;
+}
+#paint {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    background-color: darkseagreen;
+    padding: 10px;
+}
+#paint img {
+    width: 40px;
+    height: 40px;
+    margin: 10px 10px;
+}
+#rainbow {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    align-content: center;
+    padding: 10px;
+    margin: 80px auto;
+    background-color: transparent;
+}
+.partRainbow {
+    width: 1000px;
+    height: 50px;
+    border: solid black 1px;
+    background-color: white;
+
+}
+.color {
+    width: 60px;
+    height: 60px;
+    border-radius: 50px;
+}
+.color:hover {
+    cursor: pointer;
+}
+.redcolor {
+    background-color: red;
+}
+.orangecolor {
+    background-color: orange;
+}
+.yellowcolor {
+    background-color: yellow;
+}
+.greencolor {
+    background-color: green;
+}
+.lightbluecolor {
+    background-color: deepskyblue;
+}
+.bluecolor {
+    background-color: blue;
+}
+.violetcolor {
+    background-color: purple;
+}
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 300px;
+    z-index: 10;
+    font-size: 30px;
+    color: black;
+    text-align: center;
+    vertical-align: center;
+    background-color: greenyellow;
+    border: solid green 3px;
+    border-radius: 30px;
+}
+.modal-overlay {
+    z-index: 5;
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+    opacity: 0.7;
+}
+.class-button {
+    padding: 10px;
+    margin-top: 10px;
+    width: 100px;
+    height: 50px;
+    background-color: green;
+    border: solid green 1px;
+    border-radius: 30px;
+}
+.modal.closed {
+    display: none;
+}
+.modal-overlay.closed {
+    display: none;
+}
+#modal span {
+    padding: 20px;
+    margin-top: 25px;
+    display: block;
+    border: solid transparent 1px;
+}
+#choose {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    background-color: darkseagreen;
+    padding: 5px;
+}
+.selectedColor {
+    width: 40px;
+    height: 40px;
+}
+.close {
+    display: none;
+}
+#balls {
+    text-align: center;
+}
+#balls p {
+    margin-bottom: 35px;
+}
+.bubbleCanvas {
+    text-align: center;
+    margin:0;
+    padding:0;
+    border: 0;
+    background: black;
+    display: inline-block;
+    position: relative;
+    z-index: 10;
+}
+.bubbleButton {
+    font-family: sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: yellow;
+    border: 5px solid yellow;
+    padding: 10px;
+    border-radius: 30px;
+}
+.error {
+    border-color: red;
+    background-color: indianred;
+}
+#results {
+    position: fixed;
+    margin-top: 110px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h4 {
+    text-align: center;
+    margin-top: 100px;
+    font-weight: bold;
+    font-size: 40px;
+    color: black;
+    text-shadow: white 0 0 1px;
+
+}
+#results span {
+    display: inline-block;
+    margin: 5px;
+    font-weight: bold;
+    font-size: 26px;
+    color: blue;
+    text-shadow: white 0 0 1px;
+}

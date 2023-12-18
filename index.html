@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LearningRainbowColors</title>
+    <link rel="stylesheet" href="owl.carousel.css"/>
+    <link rel="stylesheet" media="all" href="animate.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="owl.carousel.min.js"></script>
+    <script src="sweetalert.min.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<embed src="sound/happiness_rising.mp3" autostart="true" loop="true">
+<script>
+    window.onload = function () {
+        let widthClient = screen.width;
+        let heightClient = screen.height;
+        document.getElementById("container").style.width = widthClient + "px";
+        document.getElementById("container").style.height = heightClient + "px";
+    };
+
+    //MODEL
+
+    //database:
+    var resultsArr;
+    var ajaxHandlerScript = "https://fe.it-academy.by/AjaxStringStorage2.php";
+    var updatePassword;
+    var stringName = 'berzhanina';
+
+    function saveInDB() {
+        updatePassword = Math.random();
+        $.ajax({
+                url: ajaxHandlerScript, type: 'POST', cache: false, dataType: 'json',
+                data: {f: 'LOCKGET', n: stringName, p: updatePassword},
+                success: lockGetReady, error: errorHandler
+            }
+        );
+    }
+
+    function lockGetReady(callresult) {
+        if (callresult.error !== undefined)
+            alert(callresult.error);
+        else {
+            $.ajax({
+                    url: ajaxHandlerScript, type: 'POST', cache: false, dataType: 'json',
+                    data: {f: 'UPDATE', n: stringName, v: JSON.stringify(resultsArr), p: updatePassword},
+                    success: updateReady, error: errorHandler
+                }
+            );
+        }
+    }
+
+    function updateReady(callresult) {
+        if (callresult.error !== undefined)
+            alert(callresult.error);
+    }
+
+    function restoreInfo() {
+        $.ajax(
+            {
+                url: ajaxHandlerScript, type: 'POST', cache: false, dataType: 'json',
+                data: {f: 'READ', n: stringName},
+                success: readReady, error: errorHandler
+            }
+        );
+    }
+
+    function readReady(callresult) {
+        if (callresult.error !== undefined)
+            alert(callresult.error);
+        else if (callresult.result !== "") {
+            resultsArr = JSON.parse(callresult.result);
+
+        }
+    }
+
+    function errorHandler(jqXHR, statusStr, errorStr) {
+        alert(statusStr + ' ' + errorStr);
+    }
+
+    restoreInfo();
+
+    //состояние страницы:
+    window.onhashchange = switchToStateFromURLHash;
+    var SPAState = {};
+
+    function switchToStateFromURLHash() {
+        var URLHash = window.location.hash;
+        var stateStr = URLHash.substr(1);
+        if (stateStr !== "") {
+            SPAState = {pagename: stateStr};
+            if (SPAState.pagename === "Teaching") {//если обновляем стр обучения (для запуска без клика)
+                carouselOn()
+            } else if (SPAState.pagename === "Results") {//если обновляем стр результаты (для запуска БД без клика)
+                setTimeout(showResults, 3000);
+            }
+        } else {
+            SPAState = {pagename: "Menu"};
+        }
+
+
+//VIEW
+
+        function showResults() {//отображение инфо с БД (на стр результаты)
+            var amount;
+            if (resultsArr.length > 7) {
+                amount = 7;
+            } else {
+                amount = resultsArr.length;
+            }
+            for (var i = 0; i < amount; i++) {
+                var name = document.createElement("span");
+                document.getElementById("results").appendChild(name).textContent = "" + resultsArr[i].name;
+                name.style.width = 150 + "px";
+                name.style.textAlign = "left";
+                var result = document.createElement("span");
+                document.getElementById("results").appendChild(result).textContent = "" + resultsArr[i].result;
+                result.style.width = 100 + "px";
+                result.style.textAlign = "right";
+                document.getElementById("results").appendChild(document.createElement("br"));
+            }
+        }
+
+        var content = "";
+        switch (SPAState.pagename) {//отрисовка страниц при навигации
+            case "Menu":
+                content += "<h2 class='animated zoomInDown'>Rainbow</h2>" +
+                    "<ul id='menu'>" +
+                    "<li id='gameBtn' class='animated slideInLeft menu' onclick='modalShow(\"Давай знакомиться!\")'>начать</li><br>" +
+                    "<li id='aboutBtn' class='animated slideInRight menu' onclick='switchToStateAbout()'>о приложении</li><br>" +
+                    "<li id='resultsBtn' class='animated slideInRight menu' onclick='switchToStateResults()'>результаты</li><br>" +
+                    "</ul>" +
+                    "<div class='modal closed' id='modal'>" +
+                    "<button class='class-button' id='close-button' onclick>ОК</button><br>" +
+                    "<span></span><br>" +
+                    "<label>Мое имя: </label><input type=text id='name' size='25' aria-label=''>" +
+                    "</div>" +
+                    "<div class='modal-overlay closed' id='modal-overlay'></div>";
+                break;
+            case "Begin":
+                content += "<h2>Rainbow</h2>" +
+                    "<ul id='menu'>" +
+                    "<li id='teachingBtn' class='menu' onclick='switchToStateTeaching()'>обучение</li>" +
+                    "<br>" +
+                    "<li id='trainingBtn' class='menu' onclick='switchToStateTraining()'>игра</li>" +
+                    "<br>" +
+                    "<li class='menu back' onclick='switchToStateMenu()'>назад в меню</li>" +
+                    "<br>" +
+                    "</ul>";
+                break;
+            case "Teaching":
+                content += "<h5>Запоминай:</h5>" +
+                    "<div id='carousel' class='animated bounceInUp'>" +
+                    "<div class='carousel-element red'>1. КРАСНЫЙ<br>" +
+                    " <img src='images/redApple.png' alt='redApple'>" +
+                    " <img src='images/redMarker.png' alt='redMarker'>" +
+                    " <img src='images/redBall.png' alt='redBall'>" +
+                    " <img src='images/redPencil.png' alt='redPencil'>" +
+                    " <img src='images/redBalloons.png' alt='redBalloons'>" +
+                    "</div>" +
+                    "<div class='carousel-element orange'>2. ОРАНЖЕВЫЙ<br>" +
+                    " <img src='images/orange.png' alt='orange'>" +
+                    " <img src='images/orangeBlouse.png' alt='orangeBlouse'>" +
+                    " <img src='images/orangeCat.png' alt='orangeCat'>" +
+                    " <img src='images/orangeChair.png' alt='orangeChair'>" +
+                    " <img src='images/orangeShoes.png' alt='orangeShoes'>" +
+                    "</div>" +
+                    "<div class='carousel-element yellow'>3. ЖЕЛТЫЙ<br>" +
+                    " <img src='images/yellowBanana.png' alt='yellowBanana'>" +
+                    " <img src='images/yellowBow.png' alt='yellowBow'>" +
+                    " <img src='images/yellowElephant.png' alt='yellowElephant'>" +
+                    " <img src='images/yellowLight.png' alt='yellowLight'>" +
+                    " <img src='images/yellowSun.png' alt='yellowSun'>" +
+                    "</div>" +
+                    "<div class='carousel-element green'>4. ЗЕЛЕНЫЙ<br>" +
+                    " <img src='images/greenApple.png' alt='greenApple'>" +
+                    " <img src='images/greenButterfly.png' alt='greenButterfly'>" +
+                    " <img src='images/greenMelon.png' alt='greenMelon'>" +
+                    " <img src='images/greenPhone.png' alt='greenPhone'>" +
+                    " <img src='images/greenUmbrella.png' alt='greenUmbrella'>" +
+                    "</div>" +
+                    "<div class='carousel-element lightBlue'>5. ГОЛУБОЙ<br>" +
+                    " <img src='images/lightblueCalc.png' alt='lightblueCalc'>" +
+                    " <img src='images/lightblueGlasses.png' alt='lightblueGlasses'>" +
+                    " <img src='images/lightblueCat.png' alt='lightblueCat'>" +
+                    " <img src='images/lightblueCotton.png' alt='lightblueCotton'>" +
+                    " <img src='images/lightblueWateringCan.png' alt='lightblueWateringCan'>" +
+                    "</div>" +
+                    "<div class='carousel-element blue'>6. СИНИЙ<br>" +
+                    " <img src='images/blueBag.png' alt='blueBag'>" +
+                    " <img src='images/blueDinosaur.png' alt='blueDinosaur'>" +
+                    " <img src='images/blueGlass.png' alt='blueGlass'>" +
+                    " <img src='images/blueHat.png' alt='blueHa'>" +
+                    " <img src='images/blueScarf.png' alt='blueScarf'>" +
+                    "</div>" +
+                    "<div class='carousel-element violet'>7. ФИОЛЕТОВЫЙ<br>" +
+                    "<img src='images/violetBall.png' alt='violetBall'>" +
+                    " <img src='images/violetHeart.png' alt='violetFlower'>" +
+                    " <img src='images/violetPhone.png' alt='violetPhone'>" +
+                    " <img src='images/violetPillow.png' alt='violetPillow'>" +
+                    " <img src='images/violetPot.png' alt='violetPot'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<button class='menu inBegin animated bounceInLeft' onclick='switchToStateBegin()'>готово!</button>";
+                break;
+            case "Training":
+                content += "<h2>Rainbow</h2>" +
+                    "<ul id='menu'>" +
+                    "<li id='paintRainbowBtn' class='menu' onclick='switchToStatePaintRainbow()'>раскрась радугу</li>" +
+                    "<br>" +
+                    "<li id='BallsBtn' class='menu' onclick='switchToStateBalls()'>лопай пузыри</li>" +
+                    "<br>" +
+                    "<li class='menu back' onclick='switchToStateBegin()'>назад</li>" +
+                    "<br>" +
+                    "</ul>";
+                break;
+            case "About":
+                content += "<div id='rules' class='animated slideInUp'>" +
+                    "<h5>о приложении</h5>" +
+                    "<p>Данное приложение позволит Вашему ребенку в игровой форме изучить цвета радуги.</p>" +
+                    "<p>В режиме 'ОБУЧЕНИЕ' справочно представлены все цвета радуги и приведены наглядные примеры.</p>" +
+                    "<ul>В режиме 'ИГРА' предлагается два варианта:" +
+                    "<li>'РАСКРАСЬ РАДУГУ' &ndash; необходимо с помощью кистей различных цветов в правильной последовательности раскрасить сегмент радуги.</li>" +
+                    "<li>'ЛОПАЙ ПУЗЫРИ' &ndash; необходимо лопнуть все взлетающие пузыри. Первоначально для запуска игры нужно правильно выбрать нужный цвет радуги, " +
+                    "в который в дальнейшем и будут окрашены сами пузыри. Как только один из пузырей достигнет верхней границы игрового поля - игра останавливается. </li>" +
+                    "</ul>" +
+                    "<p>По завершении игры набранное количество баллов хранится в разделе 'РЕЗУЛЬТАТЫ'.</p>" +
+                    "<h5>Желаем Вам УДАЧИ!</h5>" +
+                    "</div>" +
+                    "<button class='menu inBegin animated bounceInRight' onclick='switchToStateMenu()'>назад в меню</button>";
+                break;
+            case "PaintRainbow":
+                content += "<div id='paint'>" +
+                    "<div class='color redcolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='red'></div> " +
+                    "<div class='color greencolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='green'></div> " +
+                    "<div class='color violetcolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='violet'></div> " +
+                    "<div class='color lightbluecolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='lightblue'></div> " +
+                    "<div class='color yellowcolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='yellow'></div> " +
+                    "<div class='color bluecolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='blue'></div> " +
+                    "<div class='color orangecolor'><img src='images/paint.png' ondragstart=paintDragStart(event) ondragend=paintDragEnd(event) alt='orange'></div> " +
+                    "</div><br>" +
+                    "<div id='rainbow' class='animated flipInX'>" +
+                    "<div id='one' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='two' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='three' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='four' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='five' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='six' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "<div id='seven' class='partRainbow' ondrop=divDrop(event) ondragover=divDragOver(event)></div> " +
+                    "</div><br>" +
+                    "<button class='menu inBegin animated bounceInLeft' onclick='switchToStateTraining()'>назад</button>";
+                break;
+            case "Balls":
+                content += "<div id='balls'>" +
+                    "<p><span class='bubbleButton' id='resultBox' onClick='start()'>СТАРТ!</span></p>" +
+                    "<canvas id='bubbleCanvas' class='bubbleCanvas animated rotateInUpRight' width='700' height='700'></canvas>" +
+                    "</div>" +
+                    "<div class='modal closed' id='modal'>" +
+                    "<button class='class-button' id='close-button'>назад</button><br>" +
+                    "<span></span><br>" +
+                    "<div id='choose'>" +
+                    "<button class='selectedColor redcolor'></button>" +
+                    "<button class='selectedColor greencolor'></button>" +
+                    "<button class='selectedColor violetcolor'></button>" +
+                    "<button class='selectedColor orangecolor'></button>" +
+                    "<button class='selectedColor lightbluecolor'></button>" +
+                    "<button class='selectedColor bluecolor'></button>" +
+                    "<button class='selectedColor yellowcolor'></button>" +
+                    "</div>" +
+                    "</div>" +
+                    "<button class='menu inBegin animated bounceInLeft' onclick='switchToStateTraining()'>назад</button>" +
+                    "<div class='modal-overlay closed' id='modal-overlay'></div>";
+                break;
+            case "Results":
+                content += "<h4>Лучшие игроки</h4>" +
+                    "<div id='results'></div><br>" +
+                    "<button class='menu inBegin animated bounceInRight' onclick='switchToStateMenu()'>назад в меню</button>";
+                break;
+        }
+        document.getElementById("container").innerHTML = content;
+    }
+
+    function carouselOn() {//для запуска карусели на стр обучения
+        $(document).ready(function () {
+            var carousel = $("#carousel");
+            carousel.owlCarousel(
+                {
+                    singleItem: true,//отображение 1го блока
+                    pagination: true//навигация
+                }
+            );
+        });
+    }
+
+    function switchToStateInURL(newState) {
+        location.hash = newState.pagename;
+    }
+    switchToStateFromURLHash();//запуск при загрузке (на главную страницу) или обновлении
+
+    function switchToStateBegin() {
+        switchToStateInURL({pagename: "Begin"});
+    }
+
+    function switchToStateTeaching() {
+        switchToStateInURL({pagename: "Teaching"});
+        carouselOn();
+    }
+
+    function switchToStateTraining() {
+        switchToStateInURL({pagename: "Training"});
+    }
+
+    function switchToStateAbout() {
+        switchToStateInURL({pagename: "About"});
+    }
+
+    function switchToStateMenu() {
+        switchToStateInURL({pagename: "Menu"});
+    }
+
+    function switchToStatePaintRainbow() {
+        switchToStateInURL({pagename: "PaintRainbow"});
+    }
+
+    function switchToStateBalls() {
+        switchToStateInURL({pagename: "Balls"});
+        counter = 0;//для сброса при обновлении на странице игры
+        window.cancelAnimationFrame(timer);
+        bubbles = [];
+        inGame = false;
+    }
+
+    function switchToStateResults() {
+        switchToStateInURL({pagename: "Results"});
+    }
+
+    function auditColors() {//проверка раскрашенности сегмента радуги и вызов окошка
+        var rainbow = ["red", "orange", "yellow", "green", "lightblue", "blue", "violet"];
+        var colors = [];
+        colors[0] = document.getElementById("one").style.backgroundColor;
+        colors[1] = document.getElementById("two").style.backgroundColor;
+        colors[2] = document.getElementById("three").style.backgroundColor;
+        colors[3] = document.getElementById("four").style.backgroundColor;
+        colors[4] = document.getElementById("five").style.backgroundColor;
+        colors[5] = document.getElementById("six").style.backgroundColor;
+        colors[6] = document.getElementById("seven").style.backgroundColor;
+        if (rainbow[0] === colors[0] && rainbow[1] === colors[1] && rainbow[2] === colors[2] && rainbow[3] === colors[3] &&
+            rainbow[4] === colors[4] && rainbow[5] === colors[5] && rainbow[6] === colors[6]) {
+            swal("Отлично!", "Ты все помнишь))", "success");
+        }
+    }
+
+    function modalShow(text) {//отрисовка модалки
+        var modal = document.querySelector("#modal"),
+            modalOverlay = document.querySelector("#modal-overlay"),
+            closeButton = document.querySelector("#close-button");
+        modal.classList.remove("closed");
+        modalOverlay.classList.remove("closed");
+        document.querySelector("#modal span").innerText = text;
+        if (document.querySelector("#name")) {
+            document.getElementById("name").onblur = function () {
+                if ((this.value.length < 2) || (this.value.length > 15) || (!isNaN(this.value))) {
+                    this.classList.add("error");
+                    document.getElementById("name").focus();
+                    closeButton.removeEventListener("click", closeModal);
+                } else {
+                    this.classList.remove("error");
+                    var user = {
+                        name: "" + document.getElementById("name").value,
+                        result: 0
+                    };
+                    window.localStorage.setItem("player", JSON.stringify(user));
+                    closeButton.addEventListener("click", switchToStateBegin);
+                }
+            };
+        }
+        closeButton.addEventListener("click", closeModal);
+    }
+
+    function closeModal() {//закрытие модалки
+        var modal = document.querySelector("#modal"),
+            modalOverlay = document.querySelector("#modal-overlay");
+        modal.classList.add("closed");
+        modalOverlay.classList.add("closed");
+    }
+
+    //CONTROLLER
+
+    var draggedPaint;//события в раскраске
+    function paintDragStart(event) {
+        draggedPaint = event.target;//начало перетаскивания
+    }
+
+    function paintDragEnd(event) {
+        draggedPaint = null;//перетаскивание завершено
+    }
+
+    function divDragOver(event) {
+        event.preventDefault();//запрет заброса элемента в div
+    }
+
+    function divDrop(event) {
+        event.preventDefault();
+        if (draggedPaint) {//при опускании кисти разукрашивание элемента
+            var colorName = draggedPaint.alt;
+            event.currentTarget.style.backgroundColor = "" + colorName;
+        }
+        auditColors();//проверка правильности окраски всей радуги
+    }
+
+    ////////////////////////GAME////////////////////////
+
+    //MODEL:
+    var canvas;
+    var ctx;
+    var bubbleCount = 100; //количество пузырей
+    var bubbles = [];
+    var bubbleSpeed = 1;
+    var bangLines = 10; //сколько линий при взрыве
+    var bangDistance = 30;
+    var minRadius = 20; //минимальный радиус
+    var scaleRadius = 10; //максимальная добавка для радиуса
+    var mouseOffset = {x: 0, y: 0};
+    var counter = 0; //счёт игры
+    var inGame = false;
+    var timer;
+
+    function start() {
+        let number = Math.floor(Math.random() * 7);
+        let numberStr = ["ПЕРВЫЙ", "ВТОРОЙ", "ТРЕТИЙ", "ЧЕТВЕРТЫЙ", "ПЯТЫЙ", "ШЕСТОЙ", "СЕДЬМОЙ"];
+        let colorNumber = numberStr[number];
+        modalShow("Какой цвет у радуги " + colorNumber + "?");//модалка с вопросом о цвете
+
+        let btnArr = document.querySelectorAll(".selectedColor");
+        for (let i = 0; i < btnArr.length; i++) {
+            btnArr[i].addEventListener("click", closeModal);
+        }
+
+        switch (colorNumber) {
+            case "ПЕРВЫЙ":
+                document.querySelector(".redcolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("red");//передаем цвет для отрисовки шаров
+                });
+                break;
+            case "ВТОРОЙ":
+                document.querySelector(".orangecolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("orange");
+                });
+                break;
+            case "ТРЕТИЙ":
+                document.querySelector(".yellowcolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("yellow");
+                });
+                break;
+            case "ЧЕТВЕРТЫЙ":
+                document.querySelector(".greencolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("green");
+                });
+                break;
+            case "ПЯТЫЙ":
+                document.querySelector(".lightbluecolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("deepskyblue");
+                });
+                break;
+            case "ШЕСТОЙ":
+                document.querySelector(".bluecolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("blue");
+                });
+                break;
+            case "СЕДЬМОЙ":
+                document.querySelector(".violetcolor").addEventListener("click", function (event) {
+                    event.preventDefault();
+                    closeModal();
+                    startGame("violet");
+                });
+                break;
+        }
+        canvas = document.getElementById('bubbleCanvas');
+        ctx = canvas.getContext('2d');
+        canvas.addEventListener('mousemove', mouseMove); //назначаем слушатель события mousemove  (controller?)
+        function mouseMove(e) {
+            mouseOffset.x = e.offsetX;
+            mouseOffset.y = e.offsetY;
+        }
+    }
+
+    function startGame(color) {  //получаем цвет со старта (в модалке вопрос)
+        if (inGame) return;
+        for (var i = 0; i < bubbleCount; i++) {
+            var bubbleItem = new CreateBubble(color);//передаем цвет в конструктор
+            bubbles.push(bubbleItem);
+        }
+        inGame = true;
+        document.getElementById('resultBox').innerHTML = 'Счет 0';
+        timer = window.requestAnimationFrame(animate);
+    }
+
+    //VIEW:
+
+    function animate() {
+        if (!inGame) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height); //очистка
+        ctx.beginPath();
+        for (let i = 0; i < bubbles.length; i++) { //отрисовка
+            bubbles[i].position.x = Math.sin(bubbles[i].count / bubbles[i].distanceBetweenWaves) * 20 + bubbles[i].xOffset;
+            bubbles[i].position.y = bubbles[i].count;
+            bubbles[i].render();
+            if (bubbles[i].count < -bubbles[i].radius) { //конец игры (шар достиг верхней границы игрового поля)
+                document.getElementById('resultBox').innerText = 'СТАРТ!';
+                swal("Игра окончена!", "Счет:" + counter + ".", "error");
+                document.querySelector("button.swal-button.swal-button--confirm").addEventListener("click", function (event) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                });
+                var savedUser = JSON.parse(window.localStorage.getItem("player"));
+                savedUser.result = counter;
+                resultsArr.unshift(savedUser);//добавляем имя=баллы в массив (в начало, будет отрисован вверху таблицы)
+                saveInDB();//сохраняем в БД
+                counter = 0;
+                window.cancelAnimationFrame(timer);
+                bubbles = [];
+                inGame = false;
+                return;
+            } else {
+                bubbles[i].count -= bubbleSpeed;
+            }
+        }
+
+        for (var i = 0; i < bubbles.length; i++) { //при наведении мыши на пузырь
+            if (mouseOffset.x > bubbles[i].position.x - bubbles[i].radius &&
+                mouseOffset.x < bubbles[i].position.x + bubbles[i].radius) {
+                if (mouseOffset.y > bubbles[i].position.y - bubbles[i].radius &&
+                    mouseOffset.y < bubbles[i].position.y + bubbles[i].radius) {
+                    function soundClick() {
+                        var audio = new Audio();
+                        audio.src = 'sound/menu.wav';
+                        audio.autoplay = true;
+                    }
+
+                    soundClick();//озвучка лопания пузыря
+                    counter++;
+                    document.getElementById('resultBox').innerHTML = 'Счет: ' + counter;
+                    for (var a = 0; a < bubbles[i].lines.length; a++) {
+                        bangDistance = bubbles[i].radius * 0.2;
+                        bubbles[i].lines[a].popping = true;
+                        bubbles[i].popping = true;
+                    }
+                }
+            }
+        }
+        timer = window.requestAnimationFrame(animate);
+    }
+
+    var CreateBubble = function (color) { //Новый пузырь(цвет передается со старта игры)
+        this.position = {x: 0, y: 0};
+        this.radius = minRadius + Math.random() * scaleRadius;
+        this.xOffset = Math.random() * canvas.width - this.radius;
+        this.yOffset = Math.random() * canvas.height;
+        this.distanceBetweenWaves = 50;
+        this.count = canvas.height + this.yOffset;
+        this.color = color;
+        this.lines = [];
+        this.popping = false;
+        this.maxRotation = 80;
+        this.rotation = Math.random() * this.maxRotation;
+        this.rotationDirection = 'right';//в какую сторону вращается
+
+        for (var i = 0; i < bangLines; i++) {
+            var lineItem = new CreateLine(this.color);
+            lineItem.bubble = this;
+            lineItem.index = i;
+            this.lines.push(lineItem);
+        }
+
+        this.resetPosition = function () {//обновление расположения
+            this.position = {x: 0, y: 0};
+            this.radius = 20 + Math.random() * 5;
+            this.xOffset = Math.random() * canvas.width - this.radius;
+            this.yOffset = Math.random() * canvas.height;
+            this.distanceBetweenWaves = 50 + Math.random() * 10;
+            this.count = canvas.height + this.yOffset;
+            this.popping = false;
+        };
+
+        this.render = function () {//обновление направления вращения
+            if (this.rotationDirection === 'right') {
+                if (this.rotation < this.maxRotation) this.rotation++;
+                else this.rotationDirection = 'left';
+            } else {
+                if (this.rotation > this.maxRotation * -1) this.rotation--;
+                else this.rotationDirection = 'right';
+            }
+            ctx.save();
+            ctx.translate(this.position.x, this.position.y);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            if (!this.popping) {
+                ctx.beginPath();
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 1;
+                ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 1.2, true);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2, false);
+                ctx.stroke();
+            }
+            ctx.restore();
+            for (var a = 0; a < this.lines.length; a++) { //Отрисовка линий
+                if (this.lines[a].popping) {
+                    if (this.lines[a].lineLength < bangDistance && !this.lines[a].inverseBang)
+                        this.lines[a].bangDistance += 0.05;
+                    else {
+                        if (this.lines[a].bangDistance >= 0) {
+                            this.lines[a].inverseBang = true;
+                            this.lines[a].bangDistanceReturn += 1;
+                            this.lines[a].bangDistance -= 0.5;
+                        } else {
+                            this.lines[a].resetValues();
+                            this.resetPosition();
+                        }
+                    }
+                    this.lines[a].updateValues();
+                    this.lines[a].render();
+                }
+            }
+        };
+    };
+
+    function CreateLine(color) { //новая линия
+        this.lineLength = 0;
+        this.bangDistance = 0;
+        this.bangDistanceReturn = 0;
+        this.inverseBang = false;
+        this.popping = false;
+        this.color = color;
+
+        this.resetValues = function () {
+            this.lineLength = 0;
+            this.bangDistance = 0;
+            this.bangDistanceReturn = 0;
+            this.inverseBang = false;
+            this.popping = false;
+            this.updateValues();
+        };
+
+        this.updateValues = function () {
+            this.x = this.bubble.position.x + (this.bubble.radius + this.bangDistanceReturn) *
+                Math.cos(2 * Math.PI * this.index / this.bubble.lines.length);
+            this.y = this.bubble.position.y + (this.bubble.radius + this.bangDistanceReturn) *
+                Math.sin(2 * Math.PI * this.index / this.bubble.lines.length);
+            this.lineLength = this.bubble.radius * this.bangDistance;
+            this.endX = this.lineLength;
+            this.endY = this.lineLength;
+        };
+
+        this.render = function () {
+            this.updateValues();
+            ctx.beginPath();
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 2;
+            ctx.moveTo(this.x, this.y);
+            if (this.x < this.bubble.position.x) this.endX = -this.lineLength;
+            if (this.y < this.bubble.position.y) this.endY = -this.lineLength;
+            if (this.y === this.bubble.position.y) this.endY = 0;
+            if (this.x === this.bubble.position.x) this.endX = 0;
+            ctx.lineTo(this.x + this.endX, this.y + this.endY);
+            ctx.stroke();
+        };
+    }
+</script>
+</body>
+</html>
